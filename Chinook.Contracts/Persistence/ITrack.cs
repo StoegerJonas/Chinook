@@ -4,19 +4,15 @@ using System.Text;
 
 namespace Chinook.Contracts.Persistence
 {
-    public class ITrack : IIdentifiable
+    public interface ITrack : IIdentifiable, IComparable
     {
-        public double UnitPrice { get; set; }
-        public int Bytes { get; set; }
-        public int Milliseconds { get; set; }
-        public string Composer { get; set; }
-        public int GenreId { get; set; }
-        public int MediaTypeId { get; set; }
-        public int AlbumId { get; set; }
-        public string Name { get; set; }
-        public int TrackId { get; set; }
-        public int Id { get; set; }
-
-        
+        string Name { get; set; }
+        int AlbumId { get; set; }
+        int MediaTypeId { get; set; }
+        int GenreId { get; set; }
+        string Composer { get; set; }
+        int Milliseconds { get; set; }
+        string Bytes { get; set; }
+        string UnitPrice { get; set; }
     }
 }

@@ -1,19 +1,30 @@
-﻿using System;
+﻿using CsvMapper.Logic.Attributes;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace Chinook.Models
+namespace Chinook.Logic.Models.Persistence
 {
-    public class Track : ModelObject, IComparable
+    [DataClass(HasHeader = true, FileName = "CsvData/Track.csv")]
+    internal class Track : IdentityObject, Contracts.Persistence.ITrack
     {
-        public double UnitPrice { get; set; }
-        public int Bytes { get; set; }
-        public int Milliseconds { get; set; }
-        public string Composer { get; set; }
-        public int GenreId { get; set; }
-        public int MediaTypeId { get; set; }
-        public int AlbumId { get; set; }
+        [DataPropertyInfo(OrderPosition =1)]
         public string Name { get; set; }
-        public int TrackId { get; set; }
-        
+        [DataPropertyInfo(OrderPosition =2)]
+        public int AlbumId { get; set; }
+        [DataPropertyInfo(OrderPosition = 3)]
+        public int MediaTypeId { get; set; }
+        [DataPropertyInfo(OrderPosition = 4)]
+        public int GenreId { get; set; }
+        [DataPropertyInfo(OrderPosition = 5)]
+        public string Composer { get; set; }
+        [DataPropertyInfo(OrderPosition = 6)]
+        public int Milliseconds { get; set; }
+        [DataPropertyInfo(OrderPosition = 7)]
+        public string Bytes { get; set; }
+        [DataPropertyInfo(OrderPosition = 8)]
+        public string UnitPrice { get; set; }
+
         public int CompareTo(object obj)
         {
             return Milliseconds.CompareTo(((Track) obj).Milliseconds);

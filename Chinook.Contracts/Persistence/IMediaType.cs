@@ -6,7 +6,6 @@ namespace Chinook.Contracts.Persistence
 {
     public interface IMediaType : IIdentifiable
     {
-        public string Name { get; set; }
-        public int MediaTypeId { get; set; }
+        string Name { get; set; }
     }
 }

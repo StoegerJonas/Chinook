@@ -1,92 +1,190 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Chinook.Models;
-using Chinook.Logic;
+using Chinook.Contracts.Persistence;
 
-namespace ChinookCLI
+
+namespace Chinook.ConApp
 {
     class Program
     {
-        /// <summary>
-        /// Main Method for ChinookCLI
-        /// </summary>
-        /// <param name="args">unused</param>
         static void Main(string[] args)
         {
-            var artists = FileReader.Read<Artist>();
-            var albums = FileReader.Read<Album>();
-            var customers = FileReader.Read<Customer>();
-            var employees = FileReader.Read<Employee>();
-            var genres = FileReader.Read<Genre>();
-            var invoices = FileReader.Read<Invoice>();
-            var invoiceLines = FileReader.Read<InvoiceLine>();
-            var mediaTypes = FileReader.Read<MediaType>();
-            var playlists = FileReader.Read<Playlist>();
-            var playlistTracks = FileReader.Read<PlaylistTrack>();
-            var tracks = FileReader.Read<Track>();
+            Console.WriteLine("Chinook-Marketing!");
 
-            {
-                Console.WriteLine("Track-Zeit-Auswertung\n" +
-                                  "Track/Titel\t\t\t\tZeit[sec]");
-                var max = tracks.Max();
-                Console.WriteLine(max.Name + "\t\t\t" + max.Milliseconds / 1000);
-                var min = tracks.Min();
-                Console.WriteLine(min.Name + "\t\t" + min.Milliseconds / 1000);
-                var avg = tracks.Average(track => track.Milliseconds);
-                Console.WriteLine("AVG-Time: " + Math.Round(avg / 1000) + "\n\n");
-            }
+            var genres = Logic.Factory.GetAllGenres();
+            var artists = Logic.Factory.GetAllArtists();
+            var albums = Logic.Factory.GetAllAlbums();
+            var costumers = Logic.Factory.GetAllCostumers();
+            var employees = Logic.Factory.GetAllEmployees();
+            var invoices = Logic.Factory.GetAllInvoices();
+            var invoicesLines = Logic.Factory.GetAllInvoicesLines();
+            var mediatypes = Logic.Factory.GetAllMediaTypes();
+            var playlist = Logic.Factory.GetAllPlaylists();
+            var playlistTracks = Logic.Factory.GetAllPlayListeTracks();
+            var roomData = Logic.Factory.GetAllRoomDatas();
+            var tracks = Logic.Factory.GetAllTracks();
 
-            {
-                Console.WriteLine("Album-Zeit-Auswertung\n" +
-                                  "Album/Titel\t\t\t\tZeit[sec]");
-                var max = (from t in tracks
-                           join a in albums on t.AlbumId equals a.AlbumId
-                           group t.Milliseconds by a.Title).Select(val => (val.Key, val.Sum())).OrderBy(a => a.Item2).Last();
+            var artistStatistics = Report.MarketingReports.GetArtistStatistics();
 
-                Console.WriteLine($"Max: {max.Key} Time: {max.Item2 / 1000}");
 
-                var min = (from t in tracks
-                           join a in albums on t.AlbumId equals a.AlbumId
-                           group t.Milliseconds by a.Title).Select(val => (val.Key, val.Sum())).OrderBy(a => a.Item2).First();
+            Console.WriteLine("Chinook Marketing\nGrösswang Sebastian\n");
 
-                Console.WriteLine($"Min: {min.Key} Time: {min.Item2 / 1000}");
+            Console.WriteLine("Track-Zeit-Auswertung");
+            Console.WriteLine("Track/Titel\t\t\t\tZeit[sec]");
+            Console.WriteLine(TrackTimeQueryMax(tracks));
+            Console.WriteLine(TrackTimeQueryMin(tracks));
+            Console.WriteLine(TrackTimeQueryAverage(tracks));
+            Console.WriteLine();
 
-                var avg = (from t in tracks
-                           join a in albums on t.AlbumId equals a.AlbumId
-                           group t.Milliseconds by a.Title).Select(val => (val.Key, val.Sum())).Average(a => a.Item2);
-                Console.WriteLine("Average Album Time: " + Math.Round(avg / 1000));
-            }
+            Console.WriteLine("Album-Zeit-Auswertung");
+            Console.WriteLine("Album/Titel\t\t\t\t\tZeit[sec]");
+            Console.WriteLine(AlbumTimeQueryMax(tracks, albums));
+            Console.WriteLine(AlbumTimeQueryMin(tracks, albums));
+            Console.WriteLine(AlbumTimeQueryAverage(tracks, albums));
+            Console.WriteLine();
 
-            {
-                Console.WriteLine("\n\n\nTrack-Verkauf-Auswertung");
-                var res1 = (from il in invoiceLines
-                            join t in tracks on il.TrackId equals t.TrackId
-                            group il.Quantity by t.Name).Select(val => (val.Key, val.Sum())).OrderBy(a => a.Item2);
+            Console.WriteLine("Track-Verkauf-Auswertung");
+            Console.WriteLine("Track/Titel\t\t\t\t\tQuantity");
+            Console.WriteLine(TrackSaleQueryMax(invoicesLines, tracks));
+            Console.WriteLine(TrackSaleQueryMin(invoicesLines, tracks));
+            Console.WriteLine(TrackSaleQueryHighPaid(invoicesLines, tracks));
+            Console.WriteLine(TrackSaleQueryLowPaid(invoicesLines, tracks));
+            Console.WriteLine();
 
-                Console.WriteLine($"Höchste Verkaufszahl: {res1.Last().Key}: {res1.Last().Item2}");
+            Console.WriteLine("Kunde-Verkauf-Auswertung");
+            Console.WriteLine("Kunde/Name");
+            Console.WriteLine(CustomerQueryMax(invoices, costumers));
+            Console.WriteLine(CustomerQueryMin(invoices, costumers));
+            Console.WriteLine(CustomerQueryAverage(invoices, costumers));
 
-                Console.WriteLine($"Niedrigste Verkaufszahl: {res1.First().Key}: {res1.First().Item2}");
-
-                var res2 = (from il in invoiceLines
-                            join t in tracks on il.TrackId equals t.TrackId
-                            group il by t.Name).Select(val => (val.Key, val.Sum(a => a.Quantity * a.UnitPrice))).OrderBy(a => a.Item2);
-
-                Console.WriteLine($"Höchster Umsatz: {res2.Last().Key}: {res2.Last().Item2}");
-
-                Console.WriteLine($"Niedrigster Umsatz: {res2.First().Key}: {res2.First().Item2}");
-            }
-
-            {
-                Console.WriteLine("\n\n\nKunde-Verkauf-Auswertung (Umsatz)");
-                var res1 = (from i in invoices
-                            join c in customers on i.CustomerId equals c.CustomerId
-                            group i by c.LastName).Select(val => (val.Key, val.Sum(a => a.Total))).OrderBy(a => a.Item2);
-                Console.WriteLine($"Höchster Umsatz: {res1.Last().Key}: {res1.Last().Item2}");
-
-                Console.WriteLine($"Niedrigster Umsatz: {res1.First().Key}: {res1.First().Item2}");
-            }
-
+            Console.WriteLine();
+            Console.WriteLine("Genre-Verkauf-Auswertung");
+            Console.WriteLine("Genre/Name");
             Console.ReadKey();
+
+        }
+
+        private static string CustomerQueryAverage(IEnumerable<IInvoice> invoices, IEnumerable<ICostumer> costumers)
+        {
+            var item = (from i in invoices
+                        join c in costumers on i.CustumerId equals c.Id
+                        group i by c.LastName)
+                        .Select(j => (j.Key, j.Sum(a => a.Total)))
+                        .OrderBy(a => a.Item2)
+                        .Average(k => k.Item2);
+            return "Average: " + item;
+        }
+
+        private static string CustomerQueryMin(IEnumerable<IInvoice> invoices, IEnumerable<ICostumer> costumers)
+        {
+            var item = (from i in invoices
+                        join c in costumers on i.CustumerId equals c.Id
+                        group i by c.LastName)
+                          .Select(j => (j.Key, j.Sum(a => a.Total)))
+                          .OrderBy(a => a.Item2)
+                          .First();
+            return "Min " + item.Key + " => " + item.Item2;
+        }
+
+        private static string CustomerQueryMax(IEnumerable<IInvoice> invoices, IEnumerable<ICostumer> costumers)
+        {
+            var item = (from i in invoices
+                        join c in costumers on i.CustumerId equals c.Id
+                        group i by c.LastName)
+                        .Select(j => (j.Key, j.Sum(a => a.Total)))
+                        .OrderBy(a => a.Item2)
+                        .Last();
+            return "Max " + item.Key + " => " + item.Item2;
+        }
+
+        private static string TrackSaleQueryLowPaid(IEnumerable<IInvoiceLine> invoicesLines, IEnumerable<ITrack> tracks)
+        {
+            var res = (from i in invoicesLines
+                       join t in tracks on i.TrackId equals t.Id
+                       group i.Quantity by t.Name)
+                        .Select(item => (item.Key, item.Sum()))
+                        .OrderBy(a => a.Item2)
+                        .First();
+            return res.Key + ":" + res.Item2;
+        }
+
+        private static string TrackSaleQueryHighPaid(IEnumerable<IInvoiceLine> invoicesLines, IEnumerable<ITrack> tracks)
+        {
+            var res = (from i in invoicesLines
+                       join t in tracks on i.TrackId equals t.Id
+                       group i.Quantity by t.Name)
+                        .Select(item => (item.Key, item.Sum()))
+                        .OrderBy(a => a.Item2)
+                        .Last();
+            return res.Key + ":" + res.Item2;
+        }
+
+        private static string TrackSaleQueryMin(IEnumerable<IInvoiceLine> invoicesLines, IEnumerable<ITrack> tracks)
+        {
+            var item = (from i in invoicesLines
+                        group i.Quantity by i.TrackId).Select(i => (i.Key, i.Sum())).Min();
+            var track = tracks.Where(q => q.Id == item.Key).SingleOrDefault();
+            return track.Name + ":" + item.Item2;
+        }
+
+        private static string TrackSaleQueryMax(IEnumerable<IInvoiceLine> invoicesLines, IEnumerable<ITrack> tracks)
+        {
+            var item = (from i in invoicesLines
+                        group i.Quantity by i.TrackId).Select(i => (i.Key, i.Sum())).Max();
+            var track = tracks.Where(q => q.Id == item.Key).SingleOrDefault();
+            return track.Name + ":" + item.Item2;
+        }
+
+        private static string AlbumTimeQueryAverage(IEnumerable<ITrack> tracks, IEnumerable<IAlbum> albums)
+        {
+            var item = (from t in tracks
+                        join a in albums on t.AlbumId equals a.Id
+                        group t.Milliseconds by a.Title)
+                        .Select(i => (i.Key, i.Sum())).Average(a => a.Item2);
+            return "Average Album Time: " + Math.Round(item / 1000);
+        }
+
+        private static string
+            AlbumTimeQueryMin(IEnumerable<ITrack> tracks, IEnumerable<IAlbum> albums)
+        {
+            var item = (from t in tracks
+                        join a in albums on t.AlbumId equals a.Id
+                        group t.Milliseconds by a.Title)
+                      .Select(i => (i.Key, i.Sum())).OrderBy(a => a.Item2).First();
+            return item.Key + "\t" + item.Item2 / 1000;
+        }
+
+        private static string AlbumTimeQueryMax(IEnumerable<ITrack> tracks, IEnumerable<IAlbum> albums)
+        {
+            var item = (from t in tracks
+                        join a in albums on t.AlbumId equals a.Id
+                        group t.Milliseconds by a.Title)
+                      .Select(i => (i.Key, i.Sum())).OrderBy(a => a.Item2).Last();
+            return item.Key + "\t\t\t\t\t" + item.Item2 / 1000;
+
+        }
+
+        private static string TrackTimeQueryAverage(IEnumerable<ITrack> tracks)
+        {
+            var track = tracks.Average(t => t.Milliseconds);
+            return "AVG-Time: " + Math.Round(track / 1000);
+
+        }
+
+        private static string TrackTimeQueryMin(IEnumerable<ITrack> tracks)
+        {
+            var track = tracks.Min();
+            return track.Name + "\t\t" + track.Milliseconds + "/ 1000";
+
+        }
+
+        private static string TrackTimeQueryMax(IEnumerable<ITrack> tracks)
+        {
+            var track = tracks.Max();
+
+            return track.Name + "\t\t\t" + track.Milliseconds + "/ 1000";
+
         }
     }
 }

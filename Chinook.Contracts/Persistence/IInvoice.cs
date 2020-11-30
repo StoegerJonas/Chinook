@@ -6,14 +6,13 @@ namespace Chinook.Contracts.Persistence
 {
     public interface IInvoice : IIdentifiable
     {
-        public double Total { get; set; }
-        public string BillingPostalCode { get; set; }
-        public string BillingCountry { get; set; }
-        public string BillingState { get; set; }
-        public string BillingCity { get; set; }
-        public string BillingAddress { get; set; }
-        public string InvoiceDate { get; set; }
-        public int CustomerId { get; set; }
-        public int InvoiceId { get; set; }
+        int CustumerId { get; set; }
+        string InvoiceDate { get; set; }
+        string BillingAdress { get; set; }
+        string BillingCity { get; set; }
+        string BillingState { get; set; }
+        string BillingCountry { get; set; }
+        string BillingPostalCode { get; set; }
+        double Total { get; set; }
     }
 }

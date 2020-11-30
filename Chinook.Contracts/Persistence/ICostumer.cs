@@ -4,14 +4,11 @@ using System.Text;
 
 namespace Chinook.Contracts.Persistence
 {
-    public interface IEmployee : IIdentifiable
+    public interface ICostumer : IIdentifiable
     {
-        string LastName { get; set; }
         string FirstName { get; set; }
-        string Title { get; set; }
-        string ReportsTo { get; set; }
-        string BirthDate { get; set; }
-        string HireDate { get; set; }
+        string LastName { get; set; }
+        string Company { get; set; }
         string Address { get; set; }
         string City { get; set; }
         string State { get; set; }
@@ -20,6 +17,6 @@ namespace Chinook.Contracts.Persistence
         string Phone { get; set; }
         string Fax { get; set; }
         string Email { get; set; }
-        
+        int SupportRepId { get; set; }
     }
 }

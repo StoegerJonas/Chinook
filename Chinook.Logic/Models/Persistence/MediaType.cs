@@ -1,13 +1,14 @@
 ﻿using CsvMapper.Logic.Attributes;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace Chinook.Models
+namespace Chinook.Logic.Models.Persistence
 {
-    [CsvMapper.Logic.Attributes.DataClass(HasHeader = true, FileName = "CsvData/MediaType.csv")]
-    internal class MediaType : Chinook.Logic.Models.IdentityObject, Contracts.Persistence.IMediaType
+    [DataClass(HasHeader = true, FileName = "CsvData/MediaType.csv")]
+    internal class MediaType : IdentityObject, Contracts.Persistence.IMediaType
     {
-        [DataPropertyInfo(OrderPosition = 2)]
-        public string Name { get; set; }
-        [DataPropertyInfo(OrderPosition = 1)]
-        public int MediaTypeId { get; set; }
+        [DataPropertyInfo(OrderPosition =1)]
+        public string Name { get ; set ; }
     }
 }

@@ -1,19 +1,20 @@
 ﻿using CsvMapper.Logic.Attributes;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace Chinook.Models
+namespace Chinook.Logic.Models.Persistence
 {
-    [CsvMapper.Logic.Attributes.DataClass(HasHeader = true, FileName = "CsvData/InvoiceLines.csv")]
-    internal class InvoiceLine : Chinook.Logic.Models.IdentityObject
+    [DataClass(HasHeader = true, FileName = "CsvData/InvoiceLine.csv")]
+    class InvoiceLine : IdentityObject, Contracts.Persistence.IInvoiceLine
     {
-        [DataPropertyInfo(OrderPosition = 5)]
-        public int Quantity { get; set; }
-        [DataPropertyInfo(OrderPosition = 4)]
-        public double UnitPrice { get; set; }
-        [DataPropertyInfo(OrderPosition = 3)]
-        public int TrackId { get; set; }
-        [DataPropertyInfo(OrderPosition = 2)]
+        [DataPropertyInfo(OrderPosition =1)]
         public int InvoiceId { get; set; }
-        [DataPropertyInfo(OrderPosition = 1)]
-        public int InvoiceLineId { get; set; }
+        [DataPropertyInfo(OrderPosition = 2)]
+        public int TrackId { get; set; }
+        [DataPropertyInfo(OrderPosition = 3)]
+        public double UnitPrice { get; set; }
+        [DataPropertyInfo(OrderPosition = 4)]
+        public int Quantity { get; set; }
     }
 }
